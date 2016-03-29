@@ -1,9 +1,13 @@
 package com.melvinphilips.moviefreak;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -11,6 +15,15 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        Intent intent = getIntent();
+        String message = intent.getStringExtra(Intent.EXTRA_TEXT);
+        TextView textView = new TextView(this);
+        textView.setTextSize(40);
+        textView.setText(message);
+
+        LinearLayout layout = (LinearLayout) findViewById(R.id.movielayout);
+        layout.addView(textView);
     }
 
     @Override
