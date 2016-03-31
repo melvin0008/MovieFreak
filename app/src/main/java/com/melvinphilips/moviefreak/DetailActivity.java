@@ -5,9 +5,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -16,14 +19,16 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        Intent intent = getIntent();
-        String message = intent.getStringExtra(Intent.EXTRA_TEXT);
-        TextView textView = new TextView(this);
-        textView.setTextSize(40);
-        textView.setText(message);
-
         LinearLayout layout = (LinearLayout) findViewById(R.id.movielayout);
-        layout.addView(textView);
+        Intent intent = getIntent();
+        String title = intent.getStringExtra("title");
+        String imageUrl = intent.getStringExtra("image");
+
+        TextView titleDetail= (TextView) layout.findViewById(R.id.grid_movie_title);
+        ImageView imageDetail = (ImageView) layout.findViewById(R.id.grid_movie_image);
+
+        titleDetail.setText(title);
+        Picasso.with(DetailActivity.this).load(imageUrl).into(imageDetail);
     }
 
     @Override

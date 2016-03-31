@@ -10,7 +10,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,33 +23,35 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-//    private Menu mOptionsMenu;
-
+    private GridView mGridView;
+    private ArrayList<GridItem> mGridData;
+    private GridViewAdapter mGridAdapter;
+    private ImageView mImageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        GridView gridview = (GridView) findViewById(R.id.gridview);
-        gridview.setAdapter(new ImageAdapter(this));
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mGridView = (GridView) findViewById(R.id.gridView);
+
+        mGridData = new ArrayList<>();
+        mGridAdapter = new GridViewAdapter(this,R.layout.grid_item_layout,mGridData);
+        mGridView.setAdapter(mGridAdapter);
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Intent intent = new Intent(MainActivity.this, DetailActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, Integer.toString(position));
+                GridItem item = mGridData.get(position);
+                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+                intent.putExtra("title",item.getName());
+                intent.putExtra("image",item.getImage());
                 startActivity(intent);
             }
         });
-
+        new GetMovieTask().execute();
     }
-
-//    private void updateOptionsMenu() {
-//        if (mOptionsMenu != null) {
-//            onPrepareOptionsMenu(mOptionsMenu);
-//        }
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -71,11 +78,11 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public class GetMovieTask extends AsyncTask<Void,Void,Void> implements Constants{
+    public class GetMovieTask extends AsyncTask<Void,Void,Integer> implements Constants{
 
         private final String LOG_TAG = GetMovieTask.class.getSimpleName();
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Integer doInBackground(Void... params) {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
@@ -91,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
                 InputStream inputStream = urlConnection.getInputStream();
                 if (inputStream == null){
-                    return null;
+                    return 0;
                 }
 
                 StringBuffer buffer = new StringBuffer();
@@ -103,14 +110,15 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (buffer.length() == 0) {
-                    return  null;
+                    return  0;
                 }
                 movieJsonStr = buffer.toString();
+                populateGridData(movieJsonStr);
                 Log.d(LOG_TAG,movieJsonStr);
             }
             catch (IOException e){
                 Log.e(LOG_TAG, "Error ", e);
-                return null;
+                return 0;
             }
             finally {
                 if (urlConnection != null) {
@@ -121,12 +129,41 @@ public class MainActivity extends AppCompatActivity {
                         reader.close();
                     } catch (IOException e) {
                         Log.e(LOG_TAG, "Error", e);
+                        return 0;
                     }
                 }
 
             }
 
-            return null;
+            return 1;
+        }
+
+        @Override
+        protected void onPostExecute(Integer result){
+            if(result==1){
+                mGridAdapter.setGridData(mGridData);
+            }
+        }
+
+    }
+
+    private void populateGridData(String response){
+        final String LOG_TAG = GetMovieTask.class.getSimpleName();
+        try{
+            JSONObject responseObj =  new JSONObject(response);
+            JSONArray moviesArray = responseObj.optJSONArray("results");
+            GridItem item;
+
+            for(int i = 0; i < moviesArray.length();i++){
+                JSONObject movie = moviesArray.optJSONObject(i);
+                item = new GridItem();
+                item.setImage("http://image.tmdb.org/t/p/w185"+movie.getString("poster_path"));
+                item.setName(movie.getString("title"));
+                Log.d(LOG_TAG,"http://image.tmdb.org/t/p/w185"+movie.getString("poster_path"));
+                mGridData.add(item);
+            }
+        }catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 }
