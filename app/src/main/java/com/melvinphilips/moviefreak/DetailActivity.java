@@ -3,14 +3,19 @@ package com.melvinphilips.moviefreak;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -22,12 +27,29 @@ public class DetailActivity extends AppCompatActivity {
         LinearLayout layout = (LinearLayout) findViewById(R.id.movielayout);
         Intent intent = getIntent();
         String title = intent.getStringExtra("title");
+        String overview = intent.getStringExtra("overview");
+        String voteAverage = intent.getStringExtra("voteAverage")+"/10 ";
+        Date releaseDate = null;
+        String releaseDateString = null;
+        try {
+            releaseDate = (new SimpleDateFormat("yyyy-mm-dd").parse(intent.getStringExtra("releaseDate")));
+            releaseDateString = new SimpleDateFormat("MMM dd, yyyy").format(releaseDate);
+            Log.d("Date",releaseDateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         String imageUrl = intent.getStringExtra("image");
 
-        TextView titleDetail= (TextView) layout.findViewById(R.id.grid_movie_title);
-        ImageView imageDetail = (ImageView) layout.findViewById(R.id.grid_movie_image);
+        TextView titleDetail= (TextView) layout.findViewById(R.id.detail_movie_title);
+        TextView releaseDetail= (TextView) layout.findViewById(R.id.detail_movie_release);
+        TextView overviewDetail= (TextView) layout.findViewById(R.id.detail_movie_overview);
+        TextView voteDetail= (TextView) layout.findViewById(R.id.detail_movie_vote);
+        ImageView imageDetail = (ImageView) layout.findViewById(R.id.detail_movie_image);
 
         titleDetail.setText(title);
+        overviewDetail.setText(overview);
+        voteDetail.setText(voteAverage);
+        releaseDetail.setText(releaseDateString);
         Picasso.with(DetailActivity.this).load(imageUrl).into(imageDetail);
     }
 

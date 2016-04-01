@@ -47,8 +47,12 @@ public class MainActivity extends AppCompatActivity {
                                     int position, long id) {
                 GridItem item = mGridData.get(position);
                 Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                intent.putExtra("title",item.getName());
-                intent.putExtra("image",item.getImage());
+                intent.putExtra("title",item.getDetailName());
+                intent.putExtra("image",item.getDetailImage());
+                intent.putExtra("overview",item.getDetailOverView());
+                intent.putExtra("releaseDate",item.getDetailReleaseDate());
+                intent.putExtra("voteAverage", String.valueOf(item.getDetailVoteAverage()));
+
                 startActivity(intent);
             }
         });
@@ -80,24 +84,24 @@ public class MainActivity extends AppCompatActivity {
 
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_top_rated && preferences.getString("sorting_method","").equals("popular")) {
+        if (id == R.id.action_top_rated && preferences.getString("sorting_method","").equals(Constants.POPULAR)) {
             mGridData.clear();
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("sorting_method","top_rated");
+            editor.putString("sorting_method",Constants.TOP_RATED);
             editor.apply();
 
             GetMovieTask movieTask = new GetMovieTask();
-            movieTask.execute("top_rated");
+            movieTask.execute(Constants.TOP_RATED);
             return true;
         }
-        else if( id == R.id.action_popular && preferences.getString("sorting_method","").equals("top_rated")){
+        else if( id == R.id.action_popular && preferences.getString("sorting_method","").equals(Constants.TOP_RATED)){
             mGridData.clear();
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("sorting_method","popular");
+            editor.putString("sorting_method",Constants.POPULAR);
             editor.apply();
 
             GetMovieTask movieTask = new GetMovieTask();
-            movieTask.execute("popular");
+            movieTask.execute(Constants.POPULAR);
             return true;
         }
 
@@ -115,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
             String movieJsonStr = null;
 
-            String baseUrl = "http://api.themoviedb.org/3/movie/"+params[0]+"?api_key="+Constants.API_KEY;
+            String baseUrl = Constants.MOVIE_DB_API_URL+params[0]+"?api_key="+Constants.API_KEY;
 
             try {
                 URL url = new URL(baseUrl);
@@ -184,9 +188,11 @@ public class MainActivity extends AppCompatActivity {
             for(int i = 0; i < moviesArray.length();i++){
                 JSONObject movie = moviesArray.optJSONObject(i);
                 item = new GridItem();
-                item.setImage("http://image.tmdb.org/t/p/w185"+movie.getString("poster_path"));
-                item.setName(movie.getString("title"));
-                Log.d(LOG_TAG,"http://image.tmdb.org/t/p/w185"+movie.getString("poster_path"));
+                item.setDetailImage(Constants.IMAGE_BASE_URL + movie.getString("poster_path"));
+                item.setDetailName(movie.getString("title"));
+                item.setDetailOverView(movie.getString("overview"));
+                item.setDetailReleaseDate(movie.getString("release_date"));
+                item.setDetailVoteAverage(movie.getDouble("vote_average"));
                 mGridData.add(item);
             }
         }catch (JSONException e) {
