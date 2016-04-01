@@ -1,7 +1,9 @@
 package com.melvinphilips.moviefreak;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -50,7 +52,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        new GetMovieTask().execute();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean sortingTypeExists = preferences.contains("sorting_method");
+        if(!sortingTypeExists){
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("sorting_method","top_rated");
+            editor.apply();
+        }
+        new GetMovieTask().execute(preferences.getString("sorting_method",""));
     }
 
     @Override
@@ -67,28 +76,46 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_refresh) {
+        if (id == R.id.action_top_rated && preferences.getString("sorting_method","").equals("popular")) {
+            mGridData.clear();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("sorting_method","top_rated");
+            editor.apply();
+
             GetMovieTask movieTask = new GetMovieTask();
-            movieTask.execute();
+            movieTask.execute("top_rated");
             return true;
         }
+        else if( id == R.id.action_popular && preferences.getString("sorting_method","").equals("top_rated")){
+            mGridData.clear();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("sorting_method","popular");
+            editor.apply();
+
+            GetMovieTask movieTask = new GetMovieTask();
+            movieTask.execute("popular");
+            return true;
+        }
+
 
         return super.onOptionsItemSelected(item);
     }
 
-    public class GetMovieTask extends AsyncTask<Void,Void,Integer> implements Constants{
+    public class GetMovieTask extends AsyncTask<String,Void,Integer> implements Constants{
 
         private final String LOG_TAG = GetMovieTask.class.getSimpleName();
         @Override
-        protected Integer doInBackground(Void... params) {
+        protected Integer doInBackground(String... params) {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
             String movieJsonStr = null;
 
-            String baseUrl = "http://api.themoviedb.org/3/movie/top_rated?api_key="+Constants.API_KEY;
+            String baseUrl = "http://api.themoviedb.org/3/movie/"+params[0]+"?api_key="+Constants.API_KEY;
 
             try {
                 URL url = new URL(baseUrl);
