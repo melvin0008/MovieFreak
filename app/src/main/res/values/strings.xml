@@ -4,4 +4,16 @@
     <string name="action_popular">Popular Movies</string>
     <string name="action_top_rated">Top Rated Movies</string>
     <string name="title_activity_detail">Movie Details</string>
+    <string name="image_base_url">http://image.tmdb.org/t/p/w500</string>
+    <string name="movie_db_url">http://api.themoviedb.org/3/movie/</string>
+    <string name="popular">popular</string>
+    <string name="top_rated">top_rated</string>
+    <string name="title">title</string>
+    <string name="overview">overview</string>
+    <string name="release_date">release_date</string>
+    <string name="vote_average">vote_average</string>
+    <string name="poster_path">poster_path</string>
+    <string name="results">results</string>
+    <string name="sorting_method">sorting_method</string>
+    <string name="image">image</string>
 </resources>

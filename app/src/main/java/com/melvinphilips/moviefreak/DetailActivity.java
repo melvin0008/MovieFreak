@@ -26,19 +26,19 @@ public class DetailActivity extends AppCompatActivity {
 
         LinearLayout layout = (LinearLayout) findViewById(R.id.movielayout);
         Intent intent = getIntent();
-        String title = intent.getStringExtra("title");
-        String overview = intent.getStringExtra("overview");
-        String voteAverage = intent.getStringExtra("voteAverage")+"/10 ";
+        String title = intent.getStringExtra(getString(R.string.title));
+        String overview = intent.getStringExtra(getString(R.string.overview));
+        String voteAverage = intent.getStringExtra(getString(R.string.vote_average))+"/10 ";
         Date releaseDate = null;
         String releaseDateString = null;
         try {
-            releaseDate = (new SimpleDateFormat("yyyy-mm-dd").parse(intent.getStringExtra("releaseDate")));
+            releaseDate = new SimpleDateFormat("yyyy-mm-dd").parse(intent.getStringExtra(getString(R.string.release_date)));
             releaseDateString = new SimpleDateFormat("MMM dd, yyyy").format(releaseDate);
             Log.d("Date",releaseDateString);
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        String imageUrl = intent.getStringExtra("image");
+        String imageUrl = intent.getStringExtra(getString(R.string.image));
 
         TextView titleDetail= (TextView) layout.findViewById(R.id.detail_movie_title);
         TextView releaseDetail= (TextView) layout.findViewById(R.id.detail_movie_release);

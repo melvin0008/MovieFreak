@@ -47,23 +47,23 @@ public class MainActivity extends AppCompatActivity {
                                     int position, long id) {
                 GridItem item = mGridData.get(position);
                 Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                intent.putExtra("title",item.getDetailName());
-                intent.putExtra("image",item.getDetailImage());
-                intent.putExtra("overview",item.getDetailOverView());
-                intent.putExtra("releaseDate",item.getDetailReleaseDate());
-                intent.putExtra("voteAverage", String.valueOf(item.getDetailVoteAverage()));
+                intent.putExtra(getString(R.string.title),item.getDetailName());
+                intent.putExtra(getString(R.string.image),item.getDetailImage());
+                intent.putExtra(getString(R.string.overview),item.getDetailOverView());
+                intent.putExtra(getString(R.string.release_date),item.getDetailReleaseDate());
+                intent.putExtra(getString(R.string.vote_average), String.valueOf(item.getDetailVoteAverage()));
 
                 startActivity(intent);
             }
         });
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean sortingTypeExists = preferences.contains("sorting_method");
+        boolean sortingTypeExists = preferences.contains(getString(R.string.sorting_method));
         if(!sortingTypeExists){
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("sorting_method","top_rated");
+            editor.putString(getString(R.string.sorting_method),getString(R.string.top_rated));
             editor.apply();
         }
-        new GetMovieTask().execute(preferences.getString("sorting_method",""));
+        new GetMovieTask().execute(preferences.getString(getString(R.string.sorting_method),""));
     }
 
     @Override
@@ -84,24 +84,24 @@ public class MainActivity extends AppCompatActivity {
 
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_top_rated && preferences.getString("sorting_method","").equals(Constants.POPULAR)) {
+        if (id == R.id.action_top_rated && preferences.getString(getString(R.string.sorting_method),"").equals(getString(R.string.popular))) {
             mGridData.clear();
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("sorting_method",Constants.TOP_RATED);
+            editor.putString(getString(R.string.sorting_method),getString(R.string.top_rated));
             editor.apply();
 
             GetMovieTask movieTask = new GetMovieTask();
-            movieTask.execute(Constants.TOP_RATED);
+            movieTask.execute(getString(R.string.top_rated));
             return true;
         }
-        else if( id == R.id.action_popular && preferences.getString("sorting_method","").equals(Constants.TOP_RATED)){
+        else if( id == R.id.action_popular && preferences.getString(getString(R.string.sorting_method),"").equals(getString(R.string.top_rated))){
             mGridData.clear();
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("sorting_method",Constants.POPULAR);
+            editor.putString(getString(R.string.sorting_method),getString(R.string.popular));
             editor.apply();
 
             GetMovieTask movieTask = new GetMovieTask();
-            movieTask.execute(Constants.POPULAR);
+            movieTask.execute(getString(R.string.popular));
             return true;
         }
 
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public class GetMovieTask extends AsyncTask<String,Void,Integer> implements Constants{
+    public class GetMovieTask extends AsyncTask<String,Void,Integer>{
 
         private final String LOG_TAG = GetMovieTask.class.getSimpleName();
         @Override
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
             String movieJsonStr = null;
 
-            String baseUrl = Constants.MOVIE_DB_API_URL+params[0]+"?api_key="+Constants.API_KEY;
+            String baseUrl = getString(R.string.movie_db_url)+params[0]+"?api_key="+getString(R.string.api_key);
 
             try {
                 URL url = new URL(baseUrl);
@@ -182,17 +182,17 @@ public class MainActivity extends AppCompatActivity {
         final String LOG_TAG = GetMovieTask.class.getSimpleName();
         try{
             JSONObject responseObj =  new JSONObject(response);
-            JSONArray moviesArray = responseObj.optJSONArray("results");
+            JSONArray moviesArray = responseObj.optJSONArray(getString(R.string.results));
             GridItem item;
 
             for(int i = 0; i < moviesArray.length();i++){
                 JSONObject movie = moviesArray.optJSONObject(i);
                 item = new GridItem();
-                item.setDetailImage(Constants.IMAGE_BASE_URL + movie.getString("poster_path"));
-                item.setDetailName(movie.getString("title"));
-                item.setDetailOverView(movie.getString("overview"));
-                item.setDetailReleaseDate(movie.getString("release_date"));
-                item.setDetailVoteAverage(movie.getDouble("vote_average"));
+                item.setDetailImage(getString(R.string.image_base_url) + movie.getString(getString(R.string.poster_path)));
+                item.setDetailName(movie.getString(getString(R.string.title)));
+                item.setDetailOverView(movie.getString(getString(R.string.overview)));
+                item.setDetailReleaseDate(movie.getString(getString(R.string.release_date)));
+                item.setDetailVoteAverage(movie.getDouble(getString(R.string.vote_average)));
                 mGridData.add(item);
             }
         }catch (JSONException e) {
